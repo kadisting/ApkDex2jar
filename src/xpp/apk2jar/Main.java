@@ -111,6 +111,7 @@ public class Main extends Application {
             addProgressStr("=======执行完成！=========");
             isExecute = false;
             index = 0;
+            apkList.clear();
         }
 
     }

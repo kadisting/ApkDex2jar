@@ -8,12 +8,15 @@
 
 # Java class files
 *.class
+*.db
 
 # Generated files
 bin/
 gen/
-target/
 out/
+target/
+src/mac/
+src/windows/
 
 # Gradle files
 .gradle/
@@ -34,6 +37,7 @@ proguard/
 
 #Android Studio
 .idea
+classes
 
 app/app.iml
 AppMaker.iml

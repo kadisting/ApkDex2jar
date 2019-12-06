@@ -27,7 +27,7 @@ public class Main extends Application {
     private static final double HIGTH = 500d;
     private Label label;
     private StringBuilder sb = new StringBuilder();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService;
 
     public static void main(String[] args) {
         launch(args);
@@ -70,14 +70,15 @@ public class Main extends Application {
 
         mVBox.setOnDragDropped(new EventHandler<DragEvent>() {
             public void handle(DragEvent event) {
+                if (isExecute) {
+                    return;
+                }
                 Dragboard dragboard = event.getDragboard();
                 List<File> files = dragboard.getFiles();
-                if (files.size() > 0) {
-                    if (isExecute) {
-                        return;
-                    }
+                if (files != null && files.size() > 0) {
                     index = 0;
                     apkList = files;
+                    executorService = Executors.newSingleThreadExecutor();
                     parseList();
                 }
             }
@@ -103,9 +104,7 @@ public class Main extends Application {
     private int index = 0;
 
     private void parseList() {
-        if (apkList == null || apkList.size() == 0) {
-            return;
-        }
+
         if (index < apkList.size()) {
             execute(apkList.get(index));
         } else {
@@ -113,6 +112,7 @@ public class Main extends Application {
             isExecute = false;
             index = 0;
             apkList.clear();
+            executorService.shutdown();
         }
 
     }
@@ -205,10 +205,12 @@ public class Main extends Application {
             addProgressStr("3.解压res文件......");
 
             boolean b = ApktoolUtils.unPressApk(apkFile, dirFile);
-
             String unPressStatus = b ? "成功" : "失败";
-
             addProgressStr("  res解压" + unPressStatus);
+            if(b){
+                BaseUtils.moveDirAndDelete(dirFile.getPath(),dirFile.getPath() + "_ApkDex2jar");
+                BaseUtils.deleteDir(dirFile);
+            }
             stopExe();
         }
     }

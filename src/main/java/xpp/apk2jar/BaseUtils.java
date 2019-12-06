@@ -14,12 +14,16 @@ import java.util.Set;
 public class BaseUtils {
 
     public static void moveDirAndDelete(String oldPath, String newPath) {
+        File oldPathFile = new File(oldPath);
+        if (!oldPathFile.exists()) {
+            return;
+        }
+        File newPathFile = new File(newPath);
+        if (!newPathFile.exists()) {
+            newPathFile.mkdirs();
+        }
         try {
-            // 如果文件夹不存在，则建立新文件夹
-            (new File(newPath)).mkdirs();
-            // 读取整个文件夹的内容到file字符串数组，下面设置一个游标i，不停地向下移开始读这个数组
-            File filelist = new File(oldPath);
-            String[] file = filelist.list();
+            String[] file = oldPathFile.list();
             // 要注意，这个temp仅仅是一个临时文件指针
             // 整个程序并没有创建临时文件
             File temp = null;
@@ -55,6 +59,7 @@ public class BaseUtils {
             }
         } catch (Exception e) {
             System.out.println("复制整个文件夹内容操作出错");
+            e.printStackTrace();
         }
     }
 
@@ -66,17 +71,25 @@ public class BaseUtils {
         oldFile.delete();
     }
 
-    public static boolean deleteDir(File dir) {
+    public static void deleteDir(File dir) {
+        if (dir == null || !dir.exists()) {
+            return;
+        }
         if (dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
+            File[] files = dir.listFiles();
+            if (files != null && files.length > 0) {
+                for (File f : files) {
+                    if (f.isFile()) {
+                        f.delete();
+                    } else {
+                        deleteDir(f);
+                    }
                 }
             }
+            dir.delete();
+        } else {
+            dir.delete();
         }
-        return dir.delete();
     }
 
 
@@ -127,7 +140,7 @@ public class BaseUtils {
     }
 
 
-    public static void initBin(){
+    public static void initBin() {
 
         getDex2JarShellPath();
         getApktoolShellPath();

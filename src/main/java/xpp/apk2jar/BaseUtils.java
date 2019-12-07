@@ -144,6 +144,8 @@ public class BaseUtils {
 
         getDex2JarShellPath();
         getApktoolShellPath();
+        getJdJuiPath();
+
         changeFolderPermission(BaseUtils.getLocalBinPath());
     }
 
@@ -199,6 +201,23 @@ public class BaseUtils {
         return path;
     }
 
+    public static String getJdJuiPath() {
+
+        String path;
+
+        File gui = new File(BaseUtils.getLocalBinPath(), "jd-gui-1.6.5.jar");
+        if (gui.exists()) {
+            path = gui.getPath();
+        } else {
+            File guiFile = new File(BaseUtils.getLocalBinPath(), "jd-gui-1.6.5.jar");
+            InputStream resourceAsStream = Main.class.getResourceAsStream("/jd-gui-1.6.5.jar");
+            BaseUtils.copyFile(resourceAsStream, guiFile);
+            path = guiFile.getPath();
+        }
+
+        return path;
+    }
+
 
     private static void changeFolderPermission(File dirFile) {
         Set<PosixFilePermission> perms = new HashSet<>();
@@ -238,6 +257,33 @@ public class BaseUtils {
             e.printStackTrace();
         }
     }
+
+
+    public static boolean unPressApk(File apkFile, File dir) {
+        String command = BaseUtils.getApktoolShellPath() + " d -f -o " + dir.getPath() + "_ApkDex2jar " + apkFile.getPath();
+        return execCommand(command);
+    }
+
+
+    public static boolean dex2jar(File dexFile) {
+
+        File newFile = new File(dexFile.getParentFile(), dexFile.getName() + ".jar");
+        String command = BaseUtils.getDex2JarShellPath() + " -f -o " + newFile.getPath() + " " + dexFile.getPath();
+        return execCommand(command);
+    }
+
+
+
+    public static boolean execCommand(String command){
+        try {
+            Runtime.getRuntime().exec(command).waitFor();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
 
 }
